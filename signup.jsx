@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import { ComboboxDemo } from "./src/combobox_teams";
 import { ComboboxDemo1 } from "@/combobox1";
+import { ComboboxLanguage } from "@/Comboboxlanguage";
 
 export function SignUp() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ export function SignUp() {
     <div className="flex flex-col items-center justify-center">
       <ComboboxDemo/>
       <ComboboxDemo1/>
+      <ComboboxLanguage/>
       <GoogleOAuthProvider clientId="299875729531-bo76d5icl6tuqqtc74d65j7hugoa2lrc.apps.googleusercontent.com">
         <div
           className="flex items-center justify-center h-screen"
