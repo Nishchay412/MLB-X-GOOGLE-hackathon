@@ -22,7 +22,7 @@ import {
 
 export function ComboboxDemo1({ onSelectTeam }) {
   const [open, setOpen] = React.useState(false);
-  const [chosenTeam, setTeam] = React.useState(null); // Initialize as null
+  const [selectedTeam, setSelectedTeam] = React.useState(null); // State for the selected team
   const [value, setValue] = React.useState("");
   const [teams, setTeams] = React.useState([]); // Team list state
 
@@ -51,20 +51,22 @@ export function ComboboxDemo1({ onSelectTeam }) {
     fetchTeams();
   }, []);
 
-  // Log changes to chosenTeam
+  // Log changes to selectedTeam
   React.useEffect(() => {
-    if (chosenTeam) {
-      console.log("Updated chosenTeam:", chosenTeam);
+    if (selectedTeam) {
+      console.log("Updated selectedTeam:", selectedTeam);
     }
-  }, [chosenTeam]);
+  }, [selectedTeam]);
 
   const handleSelect = (currentValue) => {
     setValue(currentValue === value ? "" : currentValue);
+    setSelectedTeam(currentValue); // Update local state
     setOpen(false);
+
+    // Notify parent component
     if (onSelectTeam) {
-      onSelectTeam(currentValue); // Call the parent callback
+      onSelectTeam(currentValue);
     }
-    setTeam(currentValue); // Update chosenTeam state
   };
 
   return (
@@ -92,7 +94,7 @@ export function ComboboxDemo1({ onSelectTeam }) {
                 <CommandItem
                   key={team.value}
                   value={team.value}
-                  onSelect={handleSelect}
+                  onSelect={() => handleSelect(team.value)}
                 >
                   <Check
                     className={cn(

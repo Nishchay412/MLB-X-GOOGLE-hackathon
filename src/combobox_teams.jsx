@@ -24,9 +24,8 @@ export function ComboboxDemo({ onSelectPlayer }) {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
   const [players, setPlayers] = React.useState([]); // Player list state
-  const [player, setPlayer] = React.useState([]);
 
-  // Fetch MLB teams and players when the component mounts
+  // Fetch MLB players when the component mounts
   React.useEffect(() => {
     const fetchTeamsAndPlayers = async () => {
       try {
@@ -67,19 +66,16 @@ export function ComboboxDemo({ onSelectPlayer }) {
     fetchTeamsAndPlayers();
   }, []);
 
-  React.useEffect(() => {
-    if (player) {
-      console.log("Updated chosen player:", player);
-    }
-  }, [player]);
   const handleSelect = (currentValue) => {
     setValue(currentValue === value ? "" : currentValue);
     setOpen(false);
+
+    // Notify parent component if the prop exists
     if (onSelectPlayer) {
-      onSelectPlayer(currentValue); // Call the parent callback
+      onSelectPlayer(currentValue);
     }
-    setPlayer(currentValue)
-    console.log("Selected value:", currentValue);
+
+    console.log("Selected player ID:", currentValue);
   };
 
   return (

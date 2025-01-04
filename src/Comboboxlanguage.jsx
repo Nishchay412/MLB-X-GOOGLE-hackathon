@@ -42,16 +42,27 @@ const frameworks = [
   },
 ];
 
-export function ComboboxLanguage() {
+export function ComboboxLanguage({ onSelectLanguage }) {
   const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
-  const [language, setLanguage] = React.useState("");
+  const [selectedLanguage, setSelectedLanguage] = React.useState("");
 
-  React.useEffect(() => {
-    if (language) {
-      console.log("Selected language:", language);
+  // Handle selection
+  const handleSelect = (currentValue) => {
+    setSelectedLanguage(currentValue);
+    setOpen(false);
+
+    // Notify parent component
+    if (onSelectLanguage) {
+      onSelectLanguage(currentValue);
     }
-  }, [language]);
+  };
+
+  // Log selected language when it changes
+  React.useEffect(() => {
+    if (selectedLanguage) {
+      console.log("Selected language:", selectedLanguage);
+    }
+  }, [selectedLanguage]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -62,8 +73,8 @@ export function ComboboxLanguage() {
           aria-expanded={open}
           className="w-[250px] justify-between"
         >
-          {value
-            ? frameworks.find((framework) => framework.value === value)?.label
+          {selectedLanguage
+            ? frameworks.find((framework) => framework.value === selectedLanguage)?.label
             : "Select Language..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
@@ -78,16 +89,12 @@ export function ComboboxLanguage() {
                 <CommandItem
                   key={framework.value}
                   value={framework.value}
-                  onSelect={(currentValue) => {
-                    setValue(currentValue);
-                    setLanguage(currentValue); // Update language state
-                    setOpen(false);
-                  }}
+                  onSelect={() => handleSelect(framework.value)}
                 >
                   <Check
                     className={cn(
                       "mr-2 h-4 w-4",
-                      value === framework.value ? "opacity-100" : "opacity-0"
+                      selectedLanguage === framework.value ? "opacity-100" : "opacity-0"
                     )}
                   />
                   {framework.label}
