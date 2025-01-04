@@ -46,6 +46,7 @@ export function SignUp() {
     try {
       const docRef = await addDoc(collection(db, "users"), data);
       console.log("Document written with ID: ", docRef.id);
+      localStorage.setItem("firebaseid",docRef.id)
     } catch (error) {
       console.error("Error adding document: ", error);
     }
