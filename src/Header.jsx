@@ -3,22 +3,27 @@ import { useNavigate } from "react-router-dom";
 
 export function Header() {
   const navigate = useNavigate();
-  const userDataString = localStorage.getItem("user_data");
-  const userData = JSON.parse(userDataString || "null"); // safer parse
-  const userPicture = String(userData.picture);
 
-  console.log(userData?.email);
-  console.log(userData?.picture);
-  
+  // Safely parse user data from localStorage
+  const userDataString = localStorage.getItem("user_data");
+  console.log("dataa",userDataString)
+  const userData = JSON.parse(userDataString || "null"); // If null, set to null safely
+
+  // Fallback to placeholder image if no picture is available
+  const userPicture = userData?.picture || "/user.png";
+
+  console.log(userData?.email); // Log email for debugging
+  console.log(userPicture); // Log picture URL for debugging
+
   return (
     <div className="flex justify-between py-2 px-2">
-      {/* Main Logo (self-closing <img> tag) */}
+      {/* Main Logo */}
       <img
-        src="/mlb logo .png"
+        src="/mlb logo.png"
         className="h-10 w-auto"
         alt="MLB Logo"
       />
-      
+
       {/* Navigation Buttons */}
       <div className="flex gap-3">
         <button
@@ -27,16 +32,16 @@ export function Header() {
         >
           PROFILE
         </button>
-        
+
         <button
           className="bg-transparent rounded-sm"
           onClick={() => navigate("/highlights")}
         >
           HIGHLIGHTS
         </button>
-        
-        {/* Login button & user image */}
-        <div className="flex gap-1"> 
+
+        {/* Login Button & User Image */}
+        <div className="flex gap-1">
           <button
             className="bg-transparent rounded-sm"
             onClick={() => navigate("/signup")}
@@ -44,9 +49,9 @@ export function Header() {
             LOGIN
           </button>
 
-          {/* Use the actual URL from userData?.picture */}
+          {/* Display user image with fallback */}
           <img
-            src={userPicture || "/placeholder.png"}
+            src={userPicture} // Either userData.picture or "/user.png"
             className="h-6 w-auto mt-2 rounded-lg"
             alt="User profile"
           />

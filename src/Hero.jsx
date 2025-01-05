@@ -1,52 +1,41 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Header } from "./Header"; // Ensure this component exists or adjust accordingly
-import { doc, getDoc } from "firebase/firestore"; // Import Firestore methods
-import { db } from "../firebase";
+import { Header } from "./Header";
 
 export function Hero() {
-  const [userData, setUserData] = useState(null); // State to store user data
-  const [mlbData, setMlbData] = useState([]); // State to store MLB data
+  const [nextMatch, setNextMatch] = useState(null);
+  const [loadingNextMatch, setLoadingNextMatch] = useState(false);
 
-  // Function to fetch user data from Firestore
-  const fetchUserData = async () => {
-    const firebaseId = localStorage.getItem("firebaseid"); // Get the document ID from localStorage
-
-    if (!firebaseId) {
-      console.error("No firebaseid found in localStorage!");
-      return;
-    }
-
+  const fetchNextMatch = async (teamId) => {
     try {
-      // Fetch the document from Firestore using the ID
-      const docRef = doc(db, "users", firebaseId);
-      const docSnap = await getDoc(docRef);
+      setLoadingNextMatch(true);
 
-      if (docSnap.exists()) {
-        console.log("User Data:", docSnap.data());
-        setUserData(docSnap.data());
+      const today = new Date().toISOString().split("T")[0]; // Get today's date (2025-01-05)
+      
+      // Fetch the schedule starting from today
+      const response = await axios.get(
+        `https://statsapi.mlb.com/api/v1/schedule?sportId=1&teamId=${teamId}&startDate=${today}&endDate=2025-12-31` // Extend date range for testing
+      );
+
+      console.log("Fetched Team Schedule:", response.data);
+
+      // Extract games from the response
+      const games = response.data.dates.flatMap(date => date.games) || [];
+      if (games.length > 0) {
+        setNextMatch(games[0]); // Set the next match
       } else {
-        console.error("No document found with the given ID.");
+        setNextMatch(null); // No upcoming matches
       }
     } catch (error) {
-      console.error("Error fetching user data from Firestore:", error);
-    }
-  };
-
-  // Function to fetch MLB data using Axios
-  const fetchMlbData = async () => {
-    try {
-      const response = await axios.get("https://statsapi.mlb.com/api/v1/teams?sportId=1");
-      console.log("MLB Teams:", response.data.teams);
-      setMlbData(response.data.teams); // Set MLB teams to state
-    } catch (error) {
-      console.error("Error fetching MLB teams with Axios:", error);
+      console.error("Error fetching next match:", error);
+    } finally {
+      setLoadingNextMatch(false);
     }
   };
 
   useEffect(() => {
-    fetchUserData(); // Fetch user data on component mount
-    fetchMlbData(); // Fetch MLB data on component mount
+    const yankeesTeamId = 147; // New York Yankees team ID
+    fetchNextMatch(yankeesTeamId);
   }, []);
 
   return (
@@ -54,18 +43,27 @@ export function Hero() {
       <Header />
       <div className="flex flex-col justify-center items-center h-full text-white text-center">
         <h1 className="text-4xl font-bold mb-4">Welcome to MLB Fan Engagement Hub</h1>
-        {userData ? (
-          <div className="bg-black bg-opacity-70 p-4 rounded-lg shadow-lg">
-            <h2 className="text-2xl font-semibold">Hello, {userData.googleUser?.name || "Fan"}!</h2>
-            <p className="text-lg">Your Favorite Team: {userData.selectedTeam}</p>
-            <p className="text-lg">Your Favorite Player: {userData.selectedPlayer}</p>
-            <p className="text-lg">Preferred Language: {userData.selectedLanguage}</p>
-          </div>
-        ) : (
-          <p>Loading your preferences...</p>
-        )}
-
-      
+        <div>
+          <h2 className="text-xl font-bold mt-4">Next Match</h2>
+          {loadingNextMatch ? (
+            <p>Loading next match...</p>
+          ) : nextMatch ? (
+            <div className="mt-4 p-4 border rounded bg-white text-black">
+              <p>
+                <strong>Match:</strong> {nextMatch.teams.away.team.name} @{" "}
+                {nextMatch.teams.home.team.name}
+              </p>
+              <p>
+                <strong>Date:</strong> {new Date(nextMatch.gameDate).toLocaleString()}
+              </p>
+              <p>
+                <strong>Venue:</strong> {nextMatch.venue.name}
+              </p>
+            </div>
+          ) : (
+            <p>No upcoming matches scheduled for the New York Yankees.</p>
+          )}
+        </div>
       </div>
     </div>
   );

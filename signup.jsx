@@ -64,6 +64,8 @@ export function SignUp() {
               try {
                 const decodedToken = jwtDecode(credentialResponse?.credential);
                 console.log("Google User Data:", decodedToken);
+                localStorage.setItem("user_data", JSON.stringify(decodedToken));
+
                 setGoogleUser(decodedToken); // Store Google login info
                 navigate("/"); // Redirect after login
               } catch (error) {
